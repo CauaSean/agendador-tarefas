@@ -14,20 +14,6 @@ public class UserDetailsServiceImpl {
     @Autowired
     private UsuarioClient client;
 
-    // Implementação do método para carregar detalhes do usuário pelo e-mail
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Busca o usuário no banco de dados pelo e-mail
-        Usuario usuario = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
-
-        // Cria e retorna um objeto UserDetails com base no usuário encontrado
-        return org.springframework.security.core.userdetails.User
-                .withUsername(usuario.getEmail()) // Define o nome de usuário como o e-mail
-                .password(usuario.getSenha()) // Define a senha do usuário
-                .build(); // Constrói o objeto UserDetails
-    }
-
     public UserDetails loadUserByUsername(String email, String token){
 
         UsuarioDTO usuarioDTO = client.buscaUsuarioPorEmail(email, token);
