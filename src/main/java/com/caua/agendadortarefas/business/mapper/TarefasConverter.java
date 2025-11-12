@@ -1,18 +1,17 @@
 package com.caua.agendadortarefas.business.mapper;
 
-import com.caua.agendadortarefas.business.dto.TarefasDTO;
+import com.caua.agendadortarefas.business.dto.TarefasDTORecord;
 import com.caua.agendadortarefas.infrastructure.entity.TarefasEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface TarefasConverter {
 
-    TarefasEntity paraTarefaEntity(TarefasDTO dto);
-    TarefasDTO paraTarefasDTO(TarefasEntity entity);
+    TarefasEntity paraTarefaEntity(TarefasDTORecord dto);
+    TarefasDTORecord paraTarefasDTORecord(TarefasEntity entity);
 
-    List<TarefasEntity> paraListaTarefasEntity(List<TarefasDTO> dtos);
-    List<TarefasDTO> paraListaTarefasDTO(List<TarefasEntity> entities);
+    List<TarefasEntity> paraListaTarefasEntity(List<TarefasDTORecord> dtos);
+    List<TarefasDTORecord> paraListaTarefasDTORecord(List<TarefasEntity> entities);
 }
