@@ -1,4 +1,4 @@
-package com.caua.agendadortarefas.infrastructure.client;
+package com.caua.agendadortarefas.infrastructure.security.client;
 
 import com.caua.agendadortarefas.business.dto.UsuarioDTO;
 import org.springframework.cloud.openfeign.FeignClient;
