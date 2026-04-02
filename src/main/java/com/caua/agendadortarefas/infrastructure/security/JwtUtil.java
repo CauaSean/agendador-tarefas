@@ -1,53 +1,41 @@
 package com.caua.agendadortarefas.infrastructure.security;
 
-
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import javax.crypto.SecretKey;
+import java.util.function.Function;
 
-@Service
+@Component
 public class JwtUtil {
 
-    // Chave secreta usada para assinar e verificar tokens JWT
-    private final String secretKey = "bWluaGEtY2hhdmUtc3VwZXItc2VndXJhLWUtY29tLW1haXMtZGUtMzItY2FyYWN0ZXJlcw==";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private SecretKey getSecretKey() {
-        byte[] encodedKey = Base64.getDecoder().decode(secretKey);
-        return Keys.hmacShaKeyFor(encodedKey);
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(this.secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Extrai as claims do token JWT (informações adicionais do token)
-    public Claims extractClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSecretKey()) // Define a chave secreta para validar a assinatura do token
-                .build()
-                .parseSignedClaims(token) // Analisa o token JWT e obtém as claims
-                .getPayload(); // Retorna o corpo das claims
-    }
-
-    // Extrai o email de usuário do token JWT
+    // This matches the call: jwtUtil.extrairEmailToken(token.substring(7))
     public String extrairEmailToken(String token) {
-        // Obtém o assunto (nome de usuário) das claims do token
-        return extractClaims(token).getSubject();
+        return extractClaim(token, Claims::getSubject);
     }
 
-    // Verifica se o token JWT está expirado
-    public boolean isTokenExpired(String token) {
-        // Compara a data de expiração do token com a data atual
-        return extractClaims(token).getExpiration().before(new Date());
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
-    // Valida o token JWT verificando o nome de usuário e se o token não está expirado
-    public boolean validateToken(String token, String username) {
-        // Extrai o nome de usuário do token
-        final String extractedUsername = extrairEmailToken(token);
-        // Verifica se o nome de usuário do token corresponde ao fornecido e se o token não está expirado
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

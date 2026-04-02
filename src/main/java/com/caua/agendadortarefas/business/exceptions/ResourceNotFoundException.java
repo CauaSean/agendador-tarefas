@@ -1,4 +1,4 @@
-package com.caua.agendadortarefas.infrastructure.exceptions;
+package com.caua.agendadortarefas.business.exceptions;
 
 
 public class ResourceNotFoundException extends RuntimeException {
