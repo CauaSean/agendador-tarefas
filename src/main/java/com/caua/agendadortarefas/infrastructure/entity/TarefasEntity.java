@@ -1,9 +1,12 @@
 package com.caua.agendadortarefas.infrastructure.entity;
 
 import com.caua.agendadortarefas.infrastructure.enums.StatusNotificacaoEnum;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document("tarefa")
+@Entity
+@Table(name = "tarefa")
 public class TarefasEntity {
 
     @Id
@@ -24,6 +28,8 @@ public class TarefasEntity {
     private LocalDateTime dataEvento;
     private String emailUsuario;
     private LocalDateTime dataAlteracao;
+
+    @Enumerated(EnumType.STRING)
     private StatusNotificacaoEnum statusNotificacaoEnum;
 
 }
