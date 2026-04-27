@@ -25,7 +25,7 @@ public class TarefasService {
 
     public TarefasDTORecord gravarTarefas(String token, TarefasDTORecord dto) {
         // substring(7) para remover o "Bearer " do token
-        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        String email = dto.emailUsuario();
 
         // Criando o DTO com os dados automáticos (email do token e datas atuais)
         TarefasDTORecord dtoFinal = new TarefasDTORecord(
@@ -50,7 +50,9 @@ public class TarefasService {
     }
 
     public List<TarefasDTORecord> buscarTarefasPorEmail(String token) {
-        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        String jwt = token.substring(7);
+
+        String email = jwtUtil.extrairEmailToken(jwt);
         return tarefasConverter.paraListaTarefasDTORecord(tarefasRepository.findByEmailUsuario(email));
     }
 

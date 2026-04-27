@@ -1,41 +1,45 @@
 package com.caua.agendadortarefas.infrastructure.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.util.function.Function;
+import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:minha_chave_secreta}")
     private String secret;
 
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+    @Value("${jwt.expiration:86400000}")
+    private Long expiration;
+
+    // 1. Gera o token
+    public String gerarToken(String email) {
+        return JWT.create()
+                .withSubject(email)
+                .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
+                .sign(Algorithm.HMAC256(secret)); // Use o Algorithm do auth0
     }
 
-    // This matches the call: jwtUtil.extrairEmailToken(token.substring(7))
+    // 2. Extrai o e-mail diretamente
     public String extrairEmailToken(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            return JWT.require(Algorithm.HMAC256(secret)) // Use o Algorithm do auth0
+                    .build()
+                    .verify(token)
+                    .getSubject();
+        } catch (JWTVerificationException e) {
+            // Aqui você captura o erro específico da biblioteca auth0
+            return null;
+        }
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+    // 3. Validação simples
+    public boolean isTokenValido(String token) {
+        return extrairEmailToken(token) != null;
     }
 }
